@@ -1,0 +1,34 @@
+{
+  "name": "google-ads-api-cli",
+  "version": "0.1.0",
+  "description": "Google Ads CLI for AI agents",
+  "type": "module",
+  "bin": {
+    "google-ads-api-cli": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepack": "pnpm build"
+  },
+  "author": "Benn Huang <tohuangbin@gmail.com>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bin-Huang/google-ads-api-cli.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "google-ads",
+    "ads",
+    "cli",
+    "ai-agent",
+    "api"
+  ]
+}

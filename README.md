@@ -43,6 +43,11 @@ Create `~/.config/google-ads-open-cli/credentials.json`:
 google-ads-open-cli customers --credentials /path/to/creds.json
 ```
 
+Credentials are resolved in this order:
+1. `--credentials <path>` flag
+2. `GOOGLE_ADS_ACCESS_TOKEN` + `GOOGLE_ADS_DEVELOPER_TOKEN` env vars
+3. `~/.config/google-ads-open-cli/credentials.json` (auto-detected)
+
 ### What you need
 
 1. **Developer Token** -- Apply at [Google Ads API Center](https://ads.google.com/aw/apicenter). Basic access is sufficient for read-only.

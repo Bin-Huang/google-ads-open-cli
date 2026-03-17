@@ -13,7 +13,7 @@ npm install -g google-ads-open-cli
 - All output is JSON to stdout (machine-readable)
 - Errors go to stderr as `{"error": "..."}`
 - Exit code 0 = success, non-zero = failure
-- Uses Google Ads API v19 with GAQL (Google Ads Query Language)
+- Uses Google Ads API v23 with GAQL (Google Ads Query Language)
 
 ## Setup
 

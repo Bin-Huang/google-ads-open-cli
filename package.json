@@ -41,5 +41,9 @@
   },
   "dependencies": {
     "commander": "^14.0.3"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/Bin-Huang/google-ads-open-cli/issues"
+  },
+  "homepage": "https://github.com/Bin-Huang/google-ads-open-cli#readme"
 }

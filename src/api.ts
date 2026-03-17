@@ -1,6 +1,6 @@
 import type { Credentials } from "./auth.js";
 
-const BASE_URL = "https://googleads.googleapis.com/v19";
+const BASE_URL = "https://googleads.googleapis.com/v23";
 
 interface CallOptions {
   creds: Credentials;

@@ -1,10 +1,10 @@
 {
-  "name": "google-ads-api-cli",
+  "name": "google-ads-open-cli",
   "version": "0.1.0",
   "description": "Google Ads CLI for AI agents",
   "type": "module",
   "bin": {
-    "google-ads-api-cli": "dist/index.js"
+    "google-ads-open-cli": "dist/index.js"
   },
   "files": [
     "dist",
@@ -19,7 +19,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Bin-Huang/google-ads-api-cli.git"
+    "url": "https://github.com/Bin-Huang/google-ads-open-cli.git"
   },
   "engines": {
     "node": ">=18"

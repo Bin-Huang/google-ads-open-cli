@@ -1,4 +1,4 @@
-# google-ads-api-cli
+# google-ads-open-cli
 
 A Google Ads CLI designed for AI agents. Wraps the official Google Ads API with simple, agent-friendly commands.
 

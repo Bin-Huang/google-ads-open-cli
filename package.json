@@ -1,6 +1,6 @@
 {
   "name": "google-ads-open-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Google Ads CLI for AI agents",
   "type": "module",
   "bin": {

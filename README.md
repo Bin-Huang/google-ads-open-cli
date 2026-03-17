@@ -1,6 +1,8 @@
 # google-ads-open-cli
 
-Google Ads CLI for AI agents. Read-only access to Google Ads API for campaign management, reporting, and analysis.
+Google Ads CLI for AI agents (and humans). Run custom GAQL queries, pull campaign and keyword stats, navigate MCC account hierarchies, audit conversion tracking, and more.
+
+**Works with:** OpenClaw, Claude Code, Cursor, Codex, and any agent that can run shell commands.
 
 ## Installation
 
@@ -8,12 +10,28 @@ Google Ads CLI for AI agents. Read-only access to Google Ads API for campaign ma
 npm install -g google-ads-open-cli
 ```
 
+Or run directly with npx:
+
+```bash
+npx google-ads-open-cli --help
+```
+
 ## How it works
 
-- All output is JSON to stdout (machine-readable)
-- Errors go to stderr as `{"error": "..."}`
-- Exit code 0 = success, non-zero = failure
-- Uses Google Ads API v23 with GAQL (Google Ads Query Language)
+Built on the official [Google Ads API v23](https://developers.google.com/google-ads/api/docs/start) with GAQL (Google Ads Query Language), this CLI authenticates via an OAuth2 access token and developer token (set as environment variables, a credentials file, or per-command flag) and provides read-only access to the Google Ads API.
+
+Core endpoints covered:
+
+- **Customer accounts** -- list accessible accounts, inspect individual customers, browse MCC hierarchies
+- **Campaigns & budgets** -- list campaigns with status filtering, inspect campaign budgets
+- **Ad groups & ads** -- browse ad groups and ads with campaign/status filters
+- **Keywords** -- list keywords (ad group criteria) with filtering
+- **Performance stats** -- campaign, ad group, ad, and keyword-level stats with date ranges and segment breakdowns
+- **Audiences & user lists** -- audience segments and remarketing lists
+- **Assets & extensions** -- images, videos, sitelinks, and campaign-level asset links
+- **Conversions & billing** -- conversion actions, billing setup, account budgets
+- **GAQL query** -- run arbitrary Google Ads Query Language queries for any data not covered by built-in commands
+- **Change history** -- recent change status records
 
 ## Setup
 

@@ -356,7 +356,7 @@ All errors are JSON to stderr:
 
 - [Google Ads API Overview](https://developers.google.com/google-ads/api/docs/start)
 - [GAQL Reference](https://developers.google.com/google-ads/api/docs/query/overview)
-- [Resource Reference](https://developers.google.com/google-ads/api/fields/v19/overview)
+- [Resource Reference](https://developers.google.com/google-ads/api/fields/v23/overview)
 
 ## Related
 

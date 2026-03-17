@@ -383,12 +383,11 @@ All errors are JSON to stderr:
 
 ## Related
 
-- [meta-ads-open-cli](https://github.com/Bin-Huang/meta-ads-open-cli) -- Meta Ads CLI
-- [tiktok-ads-cli](https://github.com/Bin-Huang/tiktok-ads-cli) -- TikTok Ads CLI
-- [linkedin-ads-cli](https://github.com/Bin-Huang/linkedin-ads-cli) -- LinkedIn Ads CLI
-- [snapchat-ads-cli](https://github.com/Bin-Huang/snapchat-ads-cli) -- Snapchat Ads CLI
-- [pinterest-ads-cli](https://github.com/Bin-Huang/pinterest-ads-cli) -- Pinterest Ads CLI
-- [reddit-ads-cli](https://github.com/Bin-Huang/reddit-ads-cli) -- Reddit Ads CLI
+- [meta-ads-open-cli](https://github.com/Bin-Huang/meta-ads-open-cli) -- Meta Ads
+- [microsoft-ads-cli](https://github.com/Bin-Huang/microsoft-ads-cli) -- Microsoft Ads
+- [apple-ads-cli](https://github.com/Bin-Huang/apple-ads-cli) -- Apple Ads
+- [google-analytics-cli](https://github.com/Bin-Huang/google-analytics-cli) -- Google Analytics
+- [google-search-console-cli](https://github.com/Bin-Huang/google-search-console-cli) -- Google Search Console
 
 ## License
 

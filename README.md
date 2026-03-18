@@ -16,6 +16,14 @@ Or run directly with npx:
 npx google-ads-open-cli --help
 ```
 
+### Agent Skill
+
+Install as an [agent skill](https://github.com/vercel-labs/skills) so AI agents (OpenClaw, Claude Code, Cursor, Codex, etc.) automatically use google-ads-open-cli for Google Ads analysis:
+
+```bash
+npx skills add Bin-Huang/google-ads-open-cli
+```
+
 ## How it works
 
 Built on the official [Google Ads API v23](https://developers.google.com/google-ads/api/docs/start) with GAQL (Google Ads Query Language), this CLI authenticates via an OAuth2 access token and developer token (set as environment variables, a credentials file, or per-command flag) and provides read-only access to the Google Ads API.

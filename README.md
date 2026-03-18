@@ -18,7 +18,7 @@ npx google-ads-open-cli --help
 
 ### Agent Skill
 
-Install as an [agent skill](https://github.com/vercel-labs/skills) so AI agents (OpenClaw, Claude Code, Cursor, Codex, etc.) automatically use google-ads-open-cli for Google Ads analysis:
+Install as an agent skill so AI agents (OpenClaw, Claude Code, Cursor, Codex, etc.) automatically use google-ads-open-cli for Google Ads analysis:
 
 ```bash
 npx skills add Bin-Huang/google-ads-open-cli

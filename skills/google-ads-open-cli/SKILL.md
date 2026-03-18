@@ -340,6 +340,7 @@ Use the `query` command with GAQL. Common scenarios:
 
 ## API documentation references
 
+- [google-ads-open-cli documentation](https://github.com/Bin-Huang/google-ads-open-cli)
 - [Google Ads API overview](https://developers.google.com/google-ads/api/docs/start)
 - [GAQL reference](https://developers.google.com/google-ads/api/docs/query/overview)
 - [GAQL grammar](https://developers.google.com/google-ads/api/docs/query/grammar)

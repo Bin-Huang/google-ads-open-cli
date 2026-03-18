@@ -8,21 +8,12 @@ Google Ads CLI for AI agents (and humans). Run custom GAQL queries, pull campaig
 
 ```bash
 npm install -g google-ads-open-cli
-```
 
-Or run directly with npx:
-
-```bash
-npx google-ads-open-cli --help
-```
-
-### Agent Skill
-
-Install as an agent skill so AI agents (OpenClaw, Claude Code, Cursor, Codex, etc.) automatically use google-ads-open-cli for Google Ads analysis:
-
-```bash
+# Add skills for AI agents (Claude Code, Cursor, Codex, etc.)
 npx skills add Bin-Huang/google-ads-open-cli
 ```
+
+Or run directly: `npx google-ads-open-cli --help`
 
 ## How it works
 

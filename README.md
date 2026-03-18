@@ -26,7 +26,7 @@ Core endpoints covered:
 - **Ad groups & ads** -- browse ad groups and ads with campaign/status filters
 - **Keywords** -- list keywords (ad group criteria) with filtering
 - **Performance stats** -- campaign, ad group, ad, and keyword-level stats with date ranges and segment breakdowns
-- **Audiences & user lists** -- audience segments and remarketing lists
+- **Audiences & user lists** -- campaign audience performance and remarketing lists
 - **Assets & extensions** -- images, videos, sitelinks, and campaign-level asset links
 - **Conversions & billing** -- conversion actions, billing setup, account budgets
 - **GAQL query** -- run arbitrary Google Ads Query Language queries for any data not covered by built-in commands

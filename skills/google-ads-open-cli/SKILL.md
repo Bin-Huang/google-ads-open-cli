@@ -233,7 +233,7 @@ Predefined ranges (with `DURING`):
 
 ### Common segments
 
-**Date:** `segments.date`, `segments.week`, `segments.month`, `segments.quarter`, `segments.year`, `segments.hour`, `segments.day_of_week`
+**Date:** `segments.date`, `segments.week`, `segments.month`, `segments.quarter`, `segments.year`, `segments.hour_of_day`, `segments.day_of_week`
 
 **Device/network:** `segments.device`, `segments.ad_network_type`, `segments.slot`, `segments.click_type`
 

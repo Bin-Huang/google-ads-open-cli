@@ -8,7 +8,7 @@ Google Ads CLI for AI agents (and humans). Run custom GAQL queries, pull campaig
 
 Tell your AI agent (e.g. OpenClaw):
 
-> Install the CLI and skills from https://github.com/Bin-Huang/google-ads-open-cli
+> Install this CLI and skills from https://github.com/Bin-Huang/google-ads-open-cli
 
 Or install manually:
 

@@ -388,12 +388,22 @@ All errors are JSON to stderr:
 
 ## Related
 
-- [meta-ads-open-cli](https://github.com/Bin-Huang/meta-ads-open-cli) -- Meta Ads
-- [microsoft-ads-cli](https://github.com/Bin-Huang/microsoft-ads-cli) -- Microsoft Ads
-- [apple-ads-cli](https://github.com/Bin-Huang/apple-ads-cli) -- Apple Ads
-- [google-analytics-cli](https://github.com/Bin-Huang/google-analytics-cli) -- Google Analytics
-- [google-search-console-cli](https://github.com/Bin-Huang/google-search-console-cli) -- Google Search Console
-
+- [meta-ads-open-cli](https://github.com/Bin-Huang/meta-ads-open-cli) -- Meta Ads CLI for AI agents (and humans)
+- [microsoft-ads-cli](https://github.com/Bin-Huang/microsoft-ads-cli) -- Microsoft Ads CLI for AI agents (and humans)
+- [amazon-ads-open-cli](https://github.com/Bin-Huang/amazon-ads-open-cli) -- Amazon Ads CLI for AI agents (and humans)
+- [tiktok-ads-cli](https://github.com/Bin-Huang/tiktok-ads-cli) -- TikTok Ads CLI for AI agents (and humans)
+- [linkedin-ads-cli](https://github.com/Bin-Huang/linkedin-ads-cli) -- LinkedIn Ads CLI for AI agents (and humans)
+- [x-ads-cli](https://github.com/Bin-Huang/x-ads-cli) -- X Ads CLI for AI agents (and humans)
+- [snapchat-ads-cli](https://github.com/Bin-Huang/snapchat-ads-cli) -- Snapchat Ads CLI for AI agents (and humans)
+- [pinterest-ads-cli](https://github.com/Bin-Huang/pinterest-ads-cli) -- Pinterest Ads CLI for AI agents (and humans)
+- [reddit-ads-cli](https://github.com/Bin-Huang/reddit-ads-cli) -- Reddit Ads CLI for AI agents (and humans)
+- [spotify-ads-cli](https://github.com/Bin-Huang/spotify-ads-cli) -- Spotify Ads CLI for AI agents (and humans)
+- [apple-ads-cli](https://github.com/Bin-Huang/apple-ads-cli) -- Apple Ads CLI for AI agents (and humans)
+- [google-analytics-cli](https://github.com/Bin-Huang/google-analytics-cli) -- Google Analytics CLI for AI agents (and humans)
+- [google-search-console-cli](https://github.com/Bin-Huang/google-search-console-cli) -- Google Search Console CLI for AI agents (and humans)
+- [youtube-analytics-cli](https://github.com/Bin-Huang/youtube-analytics-cli) -- YouTube Analytics CLI for AI agents (and humans)
+- [x-analytics-cli](https://github.com/Bin-Huang/x-analytics-cli) -- X Analytics CLI for AI agents (and humans)
+- [camoufox-cli](https://github.com/Bin-Huang/camoufox-cli) -- Anti-detect browser CLI for AI agents
 ## License
 
 Apache-2.0

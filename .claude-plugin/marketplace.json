@@ -4,7 +4,7 @@
     "name": "Benn Huang"
   },
   "metadata": {
-    "description": "Google Ads CLI for AI agents, built on the official Google Ads API with GAQL",
+    "description": "Google Ads CLI & Skills for AI agents, built on the official Google Ads API with GAQL",
     "version": "0.1.0"
   },
   "plugins": [

@@ -16,7 +16,7 @@ const program = new Command();
 
 program
   .name("google-ads-open-cli")
-  .description("Google Ads CLI for AI agents")
+  .description("Google Ads CLI & Skills for AI agents")
   .version(version)
   .option("--format <format>", "Output format", "json")
   .option("--credentials <path>", "Path to credentials JSON file")

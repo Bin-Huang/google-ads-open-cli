@@ -23,7 +23,7 @@ Or run directly: `npx google-ads-open-cli --help`
 
 ## How it works
 
-Built on the official [Google Ads API v23](https://developers.google.com/google-ads/api/docs/start) with GAQL (Google Ads Query Language), this CLI authenticates via an OAuth2 access token and developer token (set as environment variables, a credentials file, or per-command flag) and provides read-only access to the Google Ads API.
+Built on the official [Google Ads API v23](https://developers.google.com/google-ads/api/docs/start) with GAQL (Google Ads Query Language), this CLI authenticates via OAuth2 user credentials and a developer token, providing read-only access to the Google Ads API.
 
 Core endpoints covered:
 
@@ -40,42 +40,32 @@ Core endpoints covered:
 
 ## Setup
 
-### Option 1: Environment variables
+```bash
+google-ads-open-cli auth login \
+  --developer-token=xxx \
+  --client-id=xxx \
+  --client-secret=xxx
+```
+
+**How to get the values:**
+
+1. **developer_token**: Sign in to your Google Ads **manager account** and open the [API Center](https://ads.google.com/aw/apicenter). Copy your developer token. If you don't have one, apply for access on that page. The default Explorer Access level is sufficient for read-only use.
+2. **client_id & client_secret**: Go to [Google Cloud Console > Credentials](https://console.cloud.google.com/apis/credentials), click **Create Credentials > OAuth client ID**, select **Desktop app**, and create it. Copy the client ID and client secret. Make sure the [Google Ads API](https://console.cloud.google.com/apis/library/googleads.googleapis.com) is enabled in your project.
+3. **login_customer_id** (optional): Required when accessing accounts via a Manager (MCC) account. Add `"login_customer_id": "1234567890"` to your credentials file (10 digits, no dashes).
+
+This opens your browser for Google authorization. Make sure you sign in with a Google account that has access to the Google Ads data you want to use. After you approve, credentials are saved to `~/.config/google-ads-open-cli/credentials.json` and all subsequent commands work automatically. Tokens are refreshed as needed.
+
+> **Note:** Google Ads API does not support service accounts. You must use OAuth2 user credentials.
+
+### Alternative: Environment variables
+
+For CI/CD or automation, you can set credentials via environment variables:
 
 ```bash
 export GOOGLE_ADS_ACCESS_TOKEN="your_oauth2_access_token"
 export GOOGLE_ADS_DEVELOPER_TOKEN="your_developer_token"
 export GOOGLE_ADS_LOGIN_CUSTOMER_ID="1234567890"  # optional, for MCC accounts
 ```
-
-### Option 2: Credentials file
-
-Create `~/.config/google-ads-open-cli/credentials.json`:
-
-```json
-{
-  "access_token": "your_oauth2_access_token",
-  "developer_token": "your_developer_token",
-  "login_customer_id": "1234567890"
-}
-```
-
-### Option 3: Per-command credentials
-
-```bash
-google-ads-open-cli customers --credentials /path/to/creds.json
-```
-
-Credentials are resolved in this order:
-1. `--credentials <path>` flag
-2. `GOOGLE_ADS_ACCESS_TOKEN` + `GOOGLE_ADS_DEVELOPER_TOKEN` env vars
-3. `~/.config/google-ads-open-cli/credentials.json` (auto-detected)
-
-### What you need
-
-1. **Developer Token** -- Apply at [Google Ads API Center](https://ads.google.com/aw/apicenter). Basic access is sufficient for read-only.
-2. **OAuth2 Access Token** -- Use Google OAuth2 flow with scope `https://www.googleapis.com/auth/adwords`
-3. **Login Customer ID** (optional) -- Required when accessing accounts via a Manager (MCC) account. Use the MCC's customer ID (no dashes).
 
 ## Entity hierarchy
 
@@ -138,8 +128,8 @@ google-ads-open-cli campaigns 1234567890 --status ENABLED
 ```
 
 Options:
-- `--status <status>` -- filter by status: ENABLED, PAUSED, REMOVED
-- `--limit <n>` -- max results (default 100)
+- `--status <status>`: filter by status (ENABLED, PAUSED, REMOVED)
+- `--limit <n>`: max results (default 100)
 
 ### campaign
 
@@ -158,7 +148,7 @@ google-ads-open-cli campaign-budgets 1234567890
 ```
 
 Options:
-- `--limit <n>` -- max results (default 100)
+- `--limit <n>`: max results (default 100)
 
 ### ad-groups
 
@@ -170,9 +160,9 @@ google-ads-open-cli ad-groups 1234567890 --campaign 98765
 ```
 
 Options:
-- `--campaign <id>` -- filter by campaign ID
-- `--status <status>` -- filter by status: ENABLED, PAUSED, REMOVED
-- `--limit <n>` -- max results (default 100)
+- `--campaign <id>`: filter by campaign ID
+- `--status <status>`: filter by status (ENABLED, PAUSED, REMOVED)
+- `--limit <n>`: max results (default 100)
 
 ### ad-group
 
@@ -192,10 +182,10 @@ google-ads-open-cli ads 1234567890 --campaign 98765 --ad-group 11111
 ```
 
 Options:
-- `--campaign <id>` -- filter by campaign ID
-- `--ad-group <id>` -- filter by ad group ID
-- `--status <status>` -- filter by status: ENABLED, PAUSED, REMOVED
-- `--limit <n>` -- max results (default 100)
+- `--campaign <id>`: filter by campaign ID
+- `--ad-group <id>`: filter by ad group ID
+- `--status <status>`: filter by status (ENABLED, PAUSED, REMOVED)
+- `--limit <n>`: max results (default 100)
 
 ### ad
 
@@ -215,11 +205,11 @@ google-ads-open-cli campaign-stats 1234567890 --start 2026-01-01 --end 2026-01-3
 ```
 
 Options:
-- `--start <date>` -- start date (YYYY-MM-DD) **required**
-- `--end <date>` -- end date (YYYY-MM-DD) **required**
-- `--campaign <id>` -- filter by campaign ID
-- `--segments <segs>` -- additional segments (comma-separated): device, ad_network_type, day_of_week
-- `--limit <n>` -- max results (default 1000)
+- `--start <date>`: start date (YYYY-MM-DD) **required**
+- `--end <date>`: end date (YYYY-MM-DD) **required**
+- `--campaign <id>`: filter by campaign ID
+- `--segments <segs>`: additional segments (comma-separated, e.g. device, ad_network_type, day_of_week)
+- `--limit <n>`: max results (default 1000)
 
 Default metrics: impressions, clicks, cost_micros, conversions, conversions_value, ctr, average_cpc, average_cpm, interactions, all_conversions
 
@@ -232,11 +222,11 @@ google-ads-open-cli ad-group-stats 1234567890 --start 2026-01-01 --end 2026-01-3
 ```
 
 Options:
-- `--start <date>` -- start date (YYYY-MM-DD) **required**
-- `--end <date>` -- end date (YYYY-MM-DD) **required**
-- `--campaign <id>` -- filter by campaign ID
-- `--ad-group <id>` -- filter by ad group ID
-- `--limit <n>` -- max results (default 1000)
+- `--start <date>`: start date (YYYY-MM-DD) **required**
+- `--end <date>`: end date (YYYY-MM-DD) **required**
+- `--campaign <id>`: filter by campaign ID
+- `--ad-group <id>`: filter by ad group ID
+- `--limit <n>`: max results (default 1000)
 
 ### ad-stats
 
@@ -268,10 +258,10 @@ google-ads-open-cli keywords 1234567890 --campaign 98765 --status ENABLED
 ```
 
 Options:
-- `--campaign <id>` -- filter by campaign ID
-- `--ad-group <id>` -- filter by ad group ID
-- `--status <status>` -- filter by status: ENABLED, PAUSED, REMOVED
-- `--limit <n>` -- max results (default 100)
+- `--campaign <id>`: filter by campaign ID
+- `--ad-group <id>`: filter by ad group ID
+- `--status <status>`: filter by status (ENABLED, PAUSED, REMOVED)
+- `--limit <n>`: max results (default 100)
 
 ### audiences
 
@@ -282,7 +272,7 @@ google-ads-open-cli audiences 1234567890
 ```
 
 Options:
-- `--limit <n>` -- max results (default 100)
+- `--limit <n>`: max results (default 100)
 
 ### user-lists
 
@@ -293,7 +283,7 @@ google-ads-open-cli user-lists 1234567890
 ```
 
 Options:
-- `--limit <n>` -- max results (default 100)
+- `--limit <n>`: max results (default 100)
 
 ### negative-keywords
 
@@ -304,7 +294,7 @@ google-ads-open-cli negative-keywords 1234567890
 ```
 
 Options:
-- `--limit <n>` -- max results (default 100)
+- `--limit <n>`: max results (default 100)
 
 ### assets
 
@@ -316,8 +306,8 @@ google-ads-open-cli assets 1234567890 --type SITELINK
 ```
 
 Options:
-- `--type <type>` -- filter by type: IMAGE, MEDIA_BUNDLE, TEXT, YOUTUBE_VIDEO, LEAD_FORM, CALL, CALLOUT, SITELINK, STRUCTURED_SNIPPET
-- `--limit <n>` -- max results (default 100)
+- `--type <type>`: filter by type (IMAGE, MEDIA_BUNDLE, TEXT, YOUTUBE_VIDEO, LEAD_FORM, CALL, CALLOUT, SITELINK, STRUCTURED_SNIPPET)
+- `--limit <n>`: max results (default 100)
 
 ### extensions
 
@@ -329,8 +319,8 @@ google-ads-open-cli extensions 1234567890 --campaign 98765
 ```
 
 Options:
-- `--campaign <id>` -- filter by campaign ID
-- `--limit <n>` -- max results (default 100)
+- `--campaign <id>`: filter by campaign ID
+- `--limit <n>`: max results (default 100)
 
 ### conversion-actions
 
@@ -341,7 +331,7 @@ google-ads-open-cli conversion-actions 1234567890
 ```
 
 Options:
-- `--limit <n>` -- max results (default 100)
+- `--limit <n>`: max results (default 100)
 
 ### query
 
@@ -370,7 +360,7 @@ google-ads-open-cli change-status 1234567890
 ```
 
 Options:
-- `--limit <n>` -- max results (default 50)
+- `--limit <n>`: max results (default 50)
 
 ## Error output
 

@@ -11,6 +11,7 @@ import { registerStatsCommands } from "./commands/stats.js";
 import { registerTargetingCommands } from "./commands/targeting.js";
 import { registerAssetCommands } from "./commands/assets.js";
 import { registerQueryCommands } from "./commands/query.js";
+import { registerAuthCommands } from "./commands/auth.js";
 
 const program = new Command();
 
@@ -47,6 +48,7 @@ program.hook("preAction", () => {
   }
 });
 
+registerAuthCommands(program);
 registerAccountCommands(program);
 registerCampaignCommands(program);
 registerAdGroupCommands(program);

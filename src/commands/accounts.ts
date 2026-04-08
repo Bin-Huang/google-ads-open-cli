@@ -9,7 +9,7 @@ export function registerAccountCommands(program: Command): void {
     .description("List accessible customer accounts")
     .action(async () => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const data = await callApi({
           creds,
           path: "customers:listAccessibleCustomers",
@@ -25,7 +25,7 @@ export function registerAccountCommands(program: Command): void {
     .description("Get a specific customer account")
     .action(async (customerId: string) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,
@@ -43,7 +43,7 @@ export function registerAccountCommands(program: Command): void {
     .description("List manager account hierarchy (sub-accounts)")
     .action(async (customerId: string) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,

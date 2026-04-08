@@ -11,7 +11,7 @@ export function registerAssetCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         let query = `SELECT asset.id, asset.name, asset.type, asset.final_urls, asset.resource_name FROM asset`;
         if (opts.type) query += ` WHERE asset.type = '${opts.type}'`;
@@ -30,7 +30,7 @@ export function registerAssetCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         let query = `SELECT campaign_asset.asset, campaign_asset.field_type, campaign_asset.status, campaign.id, campaign.name FROM campaign_asset`;
         if (opts.campaign) query += ` WHERE campaign.id = ${opts.campaign}`;
@@ -48,7 +48,7 @@ export function registerAssetCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,

@@ -11,7 +11,7 @@ export function registerCampaignCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         let query = `SELECT campaign.id, campaign.name, campaign.status, campaign.advertising_channel_type, campaign.bidding_strategy_type, campaign.campaign_budget, campaign.start_date, campaign.end_date, campaign.serving_status FROM campaign`;
         const conditions: string[] = [];
@@ -30,7 +30,7 @@ export function registerCampaignCommands(program: Command): void {
     .description("Get a specific campaign")
     .action(async (customerId: string, campaignId: string) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,
@@ -49,7 +49,7 @@ export function registerCampaignCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,

@@ -9,7 +9,7 @@ export function registerQueryCommands(program: Command): void {
     .description("Run a raw GAQL query (Google Ads Query Language)")
     .action(async (customerId: string, gaql: string) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({ creds, customerId: id, query: gaql });
         output(data, program.opts().format);
@@ -23,7 +23,7 @@ export function registerQueryCommands(program: Command): void {
     .description("Get billing setup and account budget info")
     .action(async (customerId: string) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,
@@ -42,7 +42,7 @@ export function registerQueryCommands(program: Command): void {
     .option("--limit <n>", "Max results", "50")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,

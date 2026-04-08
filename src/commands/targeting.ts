@@ -13,7 +13,7 @@ export function registerTargetingCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         let query = `SELECT ad_group_criterion.criterion_id, ad_group_criterion.keyword.text, ad_group_criterion.keyword.match_type, ad_group_criterion.status, ad_group_criterion.quality_info.quality_score, ad_group_criterion.cpc_bid_micros, ad_group.id, campaign.id FROM ad_group_criterion WHERE ad_group_criterion.type = 'KEYWORD'`;
         if (opts.campaign) query += ` AND campaign.id = ${opts.campaign}`;
@@ -33,7 +33,7 @@ export function registerTargetingCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,
@@ -52,7 +52,7 @@ export function registerTargetingCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,
@@ -71,7 +71,7 @@ export function registerTargetingCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,

@@ -14,7 +14,7 @@ export function registerStatsCommands(program: Command): void {
     .option("--limit <n>", "Max results", "1000")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const segments = opts.segments ? opts.segments.split(",").map((s: string) => `segments.${s.trim()}`).join(", ") : "";
         const segmentFields = segments ? `, ${segments}` : "";
@@ -38,7 +38,7 @@ export function registerStatsCommands(program: Command): void {
     .option("--limit <n>", "Max results", "1000")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         let query = `SELECT ad_group.id, ad_group.name, campaign.id, segments.date, metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions, metrics.conversions_value, metrics.ctr, metrics.average_cpc FROM ad_group WHERE segments.date BETWEEN '${opts.start}' AND '${opts.end}'`;
         if (opts.campaign) query += ` AND campaign.id = ${opts.campaign}`;
@@ -61,7 +61,7 @@ export function registerStatsCommands(program: Command): void {
     .option("--limit <n>", "Max results", "1000")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         let query = `SELECT ad_group_ad.ad.id, ad_group_ad.ad.name, ad_group_ad.ad.type, ad_group.id, campaign.id, segments.date, metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions, metrics.ctr, metrics.average_cpc FROM ad_group_ad WHERE segments.date BETWEEN '${opts.start}' AND '${opts.end}'`;
         if (opts.campaign) query += ` AND campaign.id = ${opts.campaign}`;
@@ -84,7 +84,7 @@ export function registerStatsCommands(program: Command): void {
     .option("--limit <n>", "Max results", "1000")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         let query = `SELECT ad_group_criterion.keyword.text, ad_group_criterion.keyword.match_type, ad_group_criterion.status, ad_group.id, campaign.id, segments.date, metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions, metrics.ctr, metrics.average_cpc FROM keyword_view WHERE segments.date BETWEEN '${opts.start}' AND '${opts.end}'`;
         if (opts.campaign) query += ` AND campaign.id = ${opts.campaign}`;

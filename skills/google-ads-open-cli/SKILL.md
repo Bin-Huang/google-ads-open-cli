@@ -30,15 +30,27 @@ npm install -g google-ads-open-cli
 
 ## Authentication
 
-The CLI requires two credentials: an **OAuth2 access token** and a **developer token**. Credentials are resolved in this order:
+The CLI uses OAuth2 user credentials (Google Ads API does not support service accounts). Credentials are stored in `~/.config/google-ads-open-cli/credentials.json`.
 
-1. `--credentials <path>` flag (per-command)
-2. Environment variables: `GOOGLE_ADS_ACCESS_TOKEN` + `GOOGLE_ADS_DEVELOPER_TOKEN`
-3. Auto-detected file: `~/.config/google-ads-open-cli/credentials.json`
+Before running any command, verify credentials are configured by running `google-ads-open-cli customers`. If it fails with a credentials error, ask the user to set up authentication:
 
-For MCC (manager) accounts, also set `GOOGLE_ADS_LOGIN_CUSTOMER_ID`.
+```bash
+google-ads-open-cli auth login \
+  --developer-token=xxx \
+  --client-id=xxx \
+  --client-secret=xxx
+```
 
-Before running any command, verify credentials are configured by running `google-ads-open-cli customers`. If it fails with a credentials error, ask the user to set up authentication.
+How to get the values:
+
+1. **developer_token**: Sign in to a Google Ads **manager account** and open the [API Center](https://ads.google.com/aw/apicenter). Copy the developer token.
+2. **client_id & client_secret**: Go to [Google Cloud Console > Credentials](https://console.cloud.google.com/apis/credentials), create an **OAuth client ID** (Desktop app type). Make sure the [Google Ads API](https://console.cloud.google.com/apis/library/googleads.googleapis.com) is enabled.
+
+This opens a browser for authorization. Make sure the user signs in with a Google account that has access to the Google Ads data they want to use. After approval, credentials are saved automatically. All subsequent commands work with auto-refreshing tokens.
+
+For MCC (manager) accounts, add `"login_customer_id": "1234567890"` to the credentials file.
+
+Alternative: set `GOOGLE_ADS_ACCESS_TOKEN` and `GOOGLE_ADS_DEVELOPER_TOKEN` environment variables (useful for CI/CD).
 
 ## Entity hierarchy
 

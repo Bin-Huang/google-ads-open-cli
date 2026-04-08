@@ -12,7 +12,7 @@ export function registerAdGroupCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         let query = `SELECT ad_group.id, ad_group.name, ad_group.status, ad_group.type, ad_group.campaign, ad_group.cpc_bid_micros, ad_group.cpm_bid_micros FROM ad_group`;
         const conditions: string[] = [];
@@ -32,7 +32,7 @@ export function registerAdGroupCommands(program: Command): void {
     .description("Get a specific ad group")
     .action(async (customerId: string, adGroupId: string) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,
@@ -54,7 +54,7 @@ export function registerAdGroupCommands(program: Command): void {
     .option("--limit <n>", "Max results", "100")
     .action(async (customerId: string, opts) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         let query = `SELECT ad_group_ad.ad.id, ad_group_ad.ad.name, ad_group_ad.ad.type, ad_group_ad.ad.final_urls, ad_group_ad.status, ad_group_ad.ad_group, ad_group_ad.policy_summary.approval_status FROM ad_group_ad`;
         const conditions: string[] = [];
@@ -75,7 +75,7 @@ export function registerAdGroupCommands(program: Command): void {
     .description("Get a specific ad")
     .action(async (customerId: string, adGroupId: string, adId: string) => {
       try {
-        const creds = loadCredentials(program.opts().credentials);
+        const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         const data = await queryGaql({
           creds,

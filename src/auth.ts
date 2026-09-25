@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, chmodSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { homedir } from "node:os";
 
@@ -21,8 +21,10 @@ export const DEFAULT_PATH = join(
 
 export function saveCredentials(path: string, creds: Credentials): void {
   const dir = dirname(path);
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(path, JSON.stringify(creds, null, 2) + "\n", "utf-8");
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true, mode: 0o700 });
+  writeFileSync(path, JSON.stringify(creds, null, 2) + "\n", { encoding: "utf-8", mode: 0o600 });
+  // mode only applies when the file is created; tighten pre-existing files too
+  chmodSync(path, 0o600);
 }
 
 function isTokenExpired(creds: Credentials): boolean {

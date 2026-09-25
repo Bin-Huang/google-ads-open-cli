@@ -357,10 +357,12 @@ Get recent change history.
 
 ```bash
 google-ads-open-cli change-status 1234567890
+google-ads-open-cli change-status 1234567890 --days 30 --limit 200
 ```
 
 Options:
-- `--limit <n>`: max results (default 50)
+- `--days <n>`: look back this many days, including today (default 14, max 90; the API does not keep older change status data)
+- `--limit <n>`: max results (default 50, max 10000)
 
 ## Error output
 

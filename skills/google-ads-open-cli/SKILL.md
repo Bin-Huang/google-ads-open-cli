@@ -163,8 +163,8 @@ google-ads-open-cli extensions 1234567890 --campaign 98765
 google-ads-open-cli conversion-actions 1234567890
 google-ads-open-cli billing 1234567890
 
-# Change history
-google-ads-open-cli change-status 1234567890 --limit 20
+# Change history (default last 14 days, --days max 90)
+google-ads-open-cli change-status 1234567890 --days 30 --limit 20
 
 # Negative keyword lists
 google-ads-open-cli negative-keywords 1234567890

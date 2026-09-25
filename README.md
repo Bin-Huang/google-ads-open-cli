@@ -211,6 +211,8 @@ Options:
 - `--segments <segs>`: additional segments (comma-separated, e.g. device, ad_network_type, day_of_week)
 - `--limit <n>`: max results (default 1000)
 
+Rows are sorted by date, newest first. If the row count reaches `--limit`, a JSON warning is written to stderr because the results are probably truncated. The same applies to `ad-group-stats`, `ad-stats`, and `keyword-stats`.
+
 Default metrics: impressions, clicks, cost_micros, conversions, conversions_value, ctr, average_cpc, average_cpm, interactions, all_conversions
 
 ### ad-group-stats

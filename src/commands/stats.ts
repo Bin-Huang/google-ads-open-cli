@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { loadCredentials } from "../auth.js";
 import { queryGaql } from "../api.js";
-import { output, fatal, normalizeCustomerId } from "../utils.js";
+import { output, fatal, normalizeCustomerId, warnIfTruncated } from "../utils.js";
 
 export function registerStatsCommands(program: Command): void {
   program
@@ -20,8 +20,9 @@ export function registerStatsCommands(program: Command): void {
         const segmentFields = segments ? `, ${segments}` : "";
         let query = `SELECT campaign.id, campaign.name, segments.date, metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions, metrics.conversions_value, metrics.ctr, metrics.average_cpc, metrics.average_cpm, metrics.interactions, metrics.all_conversions${segmentFields} FROM campaign WHERE segments.date BETWEEN '${opts.start}' AND '${opts.end}'`;
         if (opts.campaign) query += ` AND campaign.id = ${opts.campaign}`;
-        query += ` ORDER BY segments.date LIMIT ${opts.limit}`;
+        query += ` ORDER BY segments.date DESC LIMIT ${opts.limit}`;
         const data = await queryGaql({ creds, customerId: id, query });
+        warnIfTruncated(data, opts.limit);
         output(data, program.opts().format);
       } catch (err) {
         fatal((err as Error).message);
@@ -43,8 +44,9 @@ export function registerStatsCommands(program: Command): void {
         let query = `SELECT ad_group.id, ad_group.name, campaign.id, segments.date, metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions, metrics.conversions_value, metrics.ctr, metrics.average_cpc FROM ad_group WHERE segments.date BETWEEN '${opts.start}' AND '${opts.end}'`;
         if (opts.campaign) query += ` AND campaign.id = ${opts.campaign}`;
         if (opts.adGroup) query += ` AND ad_group.id = ${opts.adGroup}`;
-        query += ` ORDER BY segments.date LIMIT ${opts.limit}`;
+        query += ` ORDER BY segments.date DESC LIMIT ${opts.limit}`;
         const data = await queryGaql({ creds, customerId: id, query });
+        warnIfTruncated(data, opts.limit);
         output(data, program.opts().format);
       } catch (err) {
         fatal((err as Error).message);
@@ -66,8 +68,9 @@ export function registerStatsCommands(program: Command): void {
         let query = `SELECT ad_group_ad.ad.id, ad_group_ad.ad.name, ad_group_ad.ad.type, ad_group.id, campaign.id, segments.date, metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions, metrics.ctr, metrics.average_cpc FROM ad_group_ad WHERE segments.date BETWEEN '${opts.start}' AND '${opts.end}'`;
         if (opts.campaign) query += ` AND campaign.id = ${opts.campaign}`;
         if (opts.adGroup) query += ` AND ad_group.id = ${opts.adGroup}`;
-        query += ` ORDER BY segments.date LIMIT ${opts.limit}`;
+        query += ` ORDER BY segments.date DESC LIMIT ${opts.limit}`;
         const data = await queryGaql({ creds, customerId: id, query });
+        warnIfTruncated(data, opts.limit);
         output(data, program.opts().format);
       } catch (err) {
         fatal((err as Error).message);
@@ -91,6 +94,7 @@ export function registerStatsCommands(program: Command): void {
         if (opts.adGroup) query += ` AND ad_group.id = ${opts.adGroup}`;
         query += ` ORDER BY metrics.impressions DESC LIMIT ${opts.limit}`;
         const data = await queryGaql({ creds, customerId: id, query });
+        warnIfTruncated(data, opts.limit);
         output(data, program.opts().format);
       } catch (err) {
         fatal((err as Error).message);

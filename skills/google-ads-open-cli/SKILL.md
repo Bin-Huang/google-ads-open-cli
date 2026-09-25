@@ -125,7 +125,7 @@ All listing commands support `--limit <n>` (default 100).
 
 ### Performance stats
 
-Stats commands require `--start` and `--end` dates (YYYY-MM-DD):
+Stats commands require `--start` and `--end` dates (YYYY-MM-DD). They return at most `--limit` rows (default 1000), newest date first (`keyword-stats`: highest impressions first). If stderr has a `{"warning": ...}` about truncation, increase `--limit` or narrow the date range before you compute totals:
 
 ```bash
 # Campaign stats

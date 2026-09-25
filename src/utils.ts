@@ -15,3 +15,22 @@ export function fatal(message: string): never {
 export function normalizeCustomerId(id: string): string {
   return id.replace(/^customers\//, "").replace(/-/g, "");
 }
+
+/**
+ * Write a JSON warning to stderr when a searchStream response has exactly `limit`
+ * rows, because the result was probably cut off by the LIMIT clause.
+ */
+export function warnIfTruncated(data: unknown, limit: string): void {
+  const batches = Array.isArray(data) ? data : [];
+  const rows = batches.reduce(
+    (sum: number, batch: { results?: unknown[] }) => sum + (batch?.results?.length ?? 0),
+    0
+  );
+  if (rows > 0 && rows >= Number(limit)) {
+    process.stderr.write(
+      JSON.stringify({
+        warning: `Returned ${rows} rows, which equals --limit. Results are probably truncated. Increase --limit or narrow the date range or filters.`,
+      }) + "\n"
+    );
+  }
+}

@@ -370,6 +370,12 @@ All errors are JSON to stderr:
 {"error": "No credentials found. Provide one of: ..."}
 ```
 
+API errors include the Google Ads error code and detail message when the API returns them:
+
+```json
+{"error": "Request contains an invalid argument. - UNRECOGNIZED_FIELD: Unrecognized field in the query: 'campaign.foo'."}
+```
+
 ## API Reference
 
 - [Google Ads API Overview](https://developers.google.com/google-ads/api/docs/start)

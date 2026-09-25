@@ -26,6 +26,36 @@ function buildHeaders(creds: Credentials): Record<string, string> {
   return headers;
 }
 
+interface GoogleAdsError {
+  errorCode?: Record<string, string>;
+  message?: string;
+}
+
+interface ApiErrorBody {
+  message?: string;
+  details?: { errors?: GoogleAdsError[] }[];
+}
+
+/**
+ * Build an error message from an API error response. The top-level message is
+ * often generic ("Request contains an invalid argument."), so the GoogleAdsFailure
+ * details (error code + message) are appended.
+ * searchStream wraps the error in an array: [{ error: {...} }].
+ */
+function formatApiError(data: unknown, status: number): string {
+  const body = (Array.isArray(data) ? data[0] : data) as { error?: ApiErrorBody } | undefined;
+  const errObj = body?.error;
+  const summary = errObj?.message ? String(errObj.message) : `HTTP ${status}`;
+  const details: string[] = [];
+  for (const detail of errObj?.details ?? []) {
+    for (const e of detail.errors ?? []) {
+      const code = Object.values(e.errorCode ?? {})[0];
+      details.push(code ? `${code}: ${e.message ?? ""}` : String(e.message ?? ""));
+    }
+  }
+  return details.length ? `${summary} - ${details.join("; ")}` : summary;
+}
+
 export async function callApi(opts: CallOptions): Promise<unknown> {
   const url = new URL(`${BASE_URL}/${opts.path}`);
   if (opts.params) {
@@ -47,10 +77,7 @@ export async function callApi(opts: CallOptions): Promise<unknown> {
   }
 
   if (!res.ok) {
-    const err = data as Record<string, unknown>;
-    const errObj = err?.error as Record<string, unknown> | undefined;
-    const msg = errObj?.message ? String(errObj.message) : `HTTP ${res.status}`;
-    throw new Error(msg);
+    throw new Error(formatApiError(data, res.status));
   }
 
   return data;
@@ -74,11 +101,7 @@ export async function queryGaql(opts: QueryOptions): Promise<unknown> {
   }
 
   if (!res.ok) {
-    const err = data as Record<string, unknown>;
-    const details = Array.isArray(err) && err[0]?.error;
-    const errObj = (details || err?.error) as Record<string, unknown> | undefined;
-    const msg = errObj?.message ? String(errObj.message) : `HTTP ${res.status}`;
-    throw new Error(msg);
+    throw new Error(formatApiError(data, res.status));
   }
 
   return data;

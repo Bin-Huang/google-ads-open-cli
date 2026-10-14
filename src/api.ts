@@ -26,14 +26,8 @@ function buildHeaders(creds: Credentials): Record<string, string> {
   return headers;
 }
 
-interface GoogleAdsError {
-  errorCode?: Record<string, string>;
-  message?: string;
-}
-
-interface ApiErrorBody {
-  message?: string;
-  details?: { errors?: GoogleAdsError[] }[];
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 /**
@@ -41,16 +35,22 @@ interface ApiErrorBody {
  * often generic ("Request contains an invalid argument."), so the GoogleAdsFailure
  * details (error code + message) are appended.
  * searchStream wraps the error in an array: [{ error: {...} }].
+ * The body comes from the network, so every level is checked before use.
+ * Malformed details are skipped and the top-level message is kept.
  */
 function formatApiError(data: unknown, status: number): string {
-  const body = (Array.isArray(data) ? data[0] : data) as { error?: ApiErrorBody } | undefined;
-  const errObj = body?.error;
+  const body = Array.isArray(data) ? data[0] : data;
+  const errObj = isObject(body) && isObject(body.error) ? body.error : undefined;
   const summary = errObj?.message ? String(errObj.message) : `HTTP ${status}`;
   const details: string[] = [];
-  for (const detail of errObj?.details ?? []) {
-    for (const e of detail.errors ?? []) {
-      const code = Object.values(e.errorCode ?? {})[0];
-      details.push(code ? `${code}: ${e.message ?? ""}` : String(e.message ?? ""));
+  const detailList = Array.isArray(errObj?.details) ? errObj.details : [];
+  for (const detail of detailList) {
+    if (!isObject(detail) || !Array.isArray(detail.errors)) continue;
+    for (const e of detail.errors) {
+      if (!isObject(e)) continue;
+      const code = isObject(e.errorCode) ? Object.values(e.errorCode)[0] : undefined;
+      const message = String(e.message ?? "");
+      details.push(code ? `${code}: ${message}` : message);
     }
   }
   return details.length ? `${summary} - ${details.join("; ")}` : summary;

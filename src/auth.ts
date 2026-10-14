@@ -23,8 +23,14 @@ export function saveCredentials(path: string, creds: Credentials): void {
   const dir = dirname(path);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true, mode: 0o700 });
   writeFileSync(path, JSON.stringify(creds, null, 2) + "\n", { encoding: "utf-8", mode: 0o600 });
-  // mode only applies when the file is created; tighten pre-existing files too
-  chmodSync(path, 0o600);
+  // mode only applies when the file is created; tighten pre-existing files too.
+  // This is best-effort: chmod fails with EPERM when another user owns the file,
+  // and the credentials are already written at this point.
+  try {
+    chmodSync(path, 0o600);
+  } catch {
+    // keep the existing permissions
+  }
 }
 
 function isTokenExpired(creds: Credentials): boolean {

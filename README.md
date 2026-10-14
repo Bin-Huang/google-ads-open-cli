@@ -366,6 +366,8 @@ Options:
 - `--days <n>`: look back this many days, including today (default 14, max 90; the API does not keep older change status data)
 - `--limit <n>`: max results (default 50, max 10000)
 
+The date range uses this machine's local date, but Google Ads reads it in the account's time zone. That time zone can be one day ahead. To cover this, the range ends two days after today, so it always includes today's changes in the account's time zone. The range starts at most 88 days before today, so it stays inside the API's 90-day limit. As a result, `--days 89` and `--days 90` query the same range.
+
 ## Error output
 
 All errors are JSON to stderr:

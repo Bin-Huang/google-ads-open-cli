@@ -50,9 +50,12 @@ export function registerQueryCommands(program: Command): void {
         const creds = await loadCredentials(program.opts().credentials);
         const id = normalizeCustomerId(customerId);
         // change_status requires a finite last_change_date_time range within the past 90 days.
-        // The upper bound is tomorrow so that changes made today (in any account time zone) are included.
-        const start = formatDate(addDays(new Date(), -(days - 1)));
-        const end = formatDate(addDays(new Date(), 1));
+        // GAQL reads these dates in the account's time zone, which can be one day ahead of this machine.
+        // - The end date is today + 2, so the account's "today" is fully included.
+        // - The start date is at most 88 days back, so it stays inside the 90-day limit.
+        const today = new Date();
+        const start = formatDate(addDays(today, -Math.min(days - 1, MAX_LOOKBACK_DAYS)));
+        const end = formatDate(addDays(today, 2));
         const data = await queryGaql({
           creds,
           customerId: id,
@@ -64,6 +67,9 @@ export function registerQueryCommands(program: Command): void {
       }
     });
 }
+
+// --days 90 implies a start 89 days back; 88 keeps one day of margin for account time zones.
+const MAX_LOOKBACK_DAYS = 88;
 
 function addDays(date: Date, days: number): Date {
   const result = new Date(date);

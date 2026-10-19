@@ -20,6 +20,9 @@ google-ads-open-cli --help
 
 # List accessible accounts
 google-ads-open-cli customers
+
+# Check that credentials can read a real account
+google-ads-open-cli customer 1234567890
 ```
 
 If the CLI is not installed, install it:
@@ -30,27 +33,38 @@ npm install -g google-ads-open-cli
 
 ## Authentication
 
-The CLI uses OAuth2 user credentials (Google Ads API does not support service accounts). Credentials are stored in `~/.config/google-ads-open-cli/credentials.json`.
+The CLI uses OAuth2 user credentials. The Google Ads API also supports service accounts, but this CLI does not support them yet. Credentials are stored in `~/.config/google-ads-open-cli/credentials.json`.
 
-Before running any command, verify credentials are configured by running `google-ads-open-cli customers`. If it fails with a credentials error, ask the user to set up authentication:
+Before you run other commands, check the credentials with a real customer ID: `google-ads-open-cli customer <customer-id>`, or a GAQL query such as `google-ads-open-cli query <customer-id> "SELECT customer.id FROM customer"`. Do NOT use `customers` for this check. `customers` succeeds even when the Cloud project has only Test access, which cannot read production accounts. If you do not know a customer ID, run `customers` to find one, then run `customer <id>`.
+
+If the check fails, use the error table below. If the user must sign in, ask the user to run this command **in their own terminal**:
 
 ```bash
-google-ads-open-cli auth login \
-  --developer-token=xxx \
-  --client-id=xxx \
-  --client-secret=xxx
+google-ads-open-cli auth login --client-id=xxx --client-secret=xxx
 ```
 
-How to get the values:
+Do NOT run `auth login` yourself. It opens a browser and blocks for up to 120 seconds while it waits for the user to approve. With `--no-browser`, it prints the authorization URL instead of opening a browser. Other options: `--login-customer-id <id>` for access through a manager (MCC) account, and `--port <port>` with `ssh -L` on a remote machine (see the README).
 
-1. **developer_token**: Sign in to a Google Ads **manager account** and open the [API Center](https://ads.google.com/aw/apicenter). Copy the developer token.
-2. **client_id & client_secret**: Go to [Google Cloud Console > Credentials](https://console.cloud.google.com/apis/credentials), create an **OAuth client ID** (Desktop app type). Make sure the [Google Ads API](https://console.cloud.google.com/apis/library/googleads.googleapis.com) is enabled.
+A developer token is NOT required. Google stopped checking developer tokens on September 9, 2026. The access level now belongs to the Google Cloud project that owns the OAuth client.
 
-This opens a browser for authorization. Make sure the user signs in with a Google account that has access to the Google Ads data they want to use. After approval, credentials are saved automatically. All subsequent commands work with auto-refreshing tokens.
+How the user gets the values:
 
-For MCC (manager) accounts, add `"login_customer_id": "1234567890"` to the credentials file.
+1. Enable the [Google Ads API](https://console.cloud.google.com/apis/library/googleads.googleapis.com) in a Google Cloud project.
+2. In [Google Auth Platform](https://console.cloud.google.com/auth/overview), configure the OAuth consent screen: add the scope `https://www.googleapis.com/auth/adwords`, and add the user's Google account as a test user while the app is in Testing status.
+3. Under **Clients**, create an OAuth client of type **Desktop app**. Copy the client ID and the client secret.
+4. A new Cloud project has Test access, which works only with test accounts. To read real accounts, apply for Explorer access on the [Google Ads API Overview page](https://console.cloud.google.com/google/ads-apis/overview) of that project.
 
-Alternative: set `GOOGLE_ADS_ACCESS_TOKEN` and `GOOGLE_ADS_DEVELOPER_TOKEN` environment variables (useful for CI/CD).
+For CI/CD, set `GOOGLE_ADS_REFRESH_TOKEN`, `GOOGLE_ADS_CLIENT_ID` and `GOOGLE_ADS_CLIENT_SECRET`. The CLI refreshes the access token itself. `GOOGLE_ADS_ACCESS_TOKEN` alone also works, but it expires after about 1 hour.
+
+### Setup errors
+
+| Error contains | Cause | What to tell the user |
+|---|---|---|
+| `No credentials found` or `Credentials file not found` | The CLI has no credentials. | Run `google-ads-open-cli auth login --client-id=xxx --client-secret=xxx` in their own terminal. |
+| `ACTION_NOT_PERMITTED`, `CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION`, or `only approved for use with test accounts` | The Cloud project has Test access, so it can read only test accounts. | Apply for Explorer access on the Google Ads API Overview page of the Cloud project. Google has known issues: projects on the free trial or without active billing are rejected, and some projects upgraded after September 9, 2026 still get `AUTHORIZATION_ERROR` (workaround: apply with a new Cloud project). |
+| `Token refresh failed` (often `invalid_grant`) | The refresh token expired or was revoked. In Testing status, refresh tokens expire after 7 days. | Run `auth login` again. To remove the 7-day limit, publish the OAuth app (In production) in Google Auth Platform. |
+| `Google Ads API has not been used in project` or `SERVICE_DISABLED` | The Google Ads API is not enabled in the Cloud project. | Enable the Google Ads API at the link in the error, wait a few minutes, then retry. |
+| `USER_PERMISSION_DENIED` | The signed-in Google account cannot access this customer, or a manager account is needed. | Check the customer ID. For access through a manager account, run `auth login --login-customer-id <manager-id>`. |
 
 ## Entity hierarchy
 
@@ -321,7 +335,7 @@ google-ads-open-cli query 1234567890 "SELECT segments.date, metrics.clicks, metr
 
 ### When the user asks for a quick overview
 
-1. Run `google-ads-open-cli customers` to find accessible accounts
+1. Run `google-ads-open-cli customers` to find accessible accounts, then `customer <id>` to confirm access
 2. Use `campaign-stats` with a recent date range for a performance snapshot
 3. Present the data with costs converted from micros to currency
 
@@ -345,7 +359,7 @@ Use the `query` command with GAQL. Common scenarios:
 
 ### Error handling
 
-- **Authentication errors** -- ask the user to verify their access token and developer token
+- **Authentication and access errors** -- see the setup error table in the Authentication section
 - **"field is not compatible"** -- some fields cannot be selected together; remove incompatible fields and retry
 - **Empty results** -- check date range, status filters, and whether the account has data for the requested entities
 - **"MISALIGNED_DATE_FOR_FILTER"** -- when filtering `segments.month` or `segments.quarter`, the date must be the first day of the period

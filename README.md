@@ -23,7 +23,7 @@ Or run directly: `npx google-ads-open-cli --help`
 
 ## How it works
 
-Built on the official [Google Ads API v23](https://developers.google.com/google-ads/api/docs/start) with GAQL (Google Ads Query Language), this CLI authenticates via OAuth2 user credentials and a developer token, providing read-only access to the Google Ads API.
+Built on the official [Google Ads API v23](https://developers.google.com/google-ads/api/docs/start) with GAQL (Google Ads Query Language), this CLI authenticates via OAuth2 user credentials, providing read-only access to the Google Ads API.
 
 Core endpoints covered:
 
@@ -40,32 +40,86 @@ Core endpoints covered:
 
 ## Setup
 
+You need a Google Cloud project with an OAuth client. Since September 9, 2026, the Google Ads API no longer checks developer tokens. Your access level now belongs to the Google Cloud project that owns the OAuth client.
+
+### 1. Create an OAuth client
+
+1. In your Google Cloud project, enable the [Google Ads API](https://console.cloud.google.com/apis/library/googleads.googleapis.com).
+2. Open [Google Auth Platform](https://console.cloud.google.com/auth/overview) and configure the OAuth consent screen:
+   - **Branding**: set an app name and a support email.
+   - **Audience**: choose **External** (or **Internal** for a Google Workspace organization). While the app is in **Testing** status, add your own Google account under **Test users**.
+   - **Data Access**: add the scope `https://www.googleapis.com/auth/adwords`.
+3. Under **Clients**, create an OAuth client with the type **Desktop app**. Copy the client ID and the client secret.
+
+### 2. Apply for an access level
+
+A new Cloud project has **Test** access. Test access works only with [test accounts](https://developers.google.com/google-ads/api/docs/best-practices/test-accounts). To read real (production) accounts, apply for **Explorer** access on the [Google Ads API Overview page](https://console.cloud.google.com/google/ads-apis/overview) of the same Cloud project. **Basic** access needs [brand verification](https://developers.google.com/identity/protocols/oauth2/production-readiness/brand-verification) before you apply. Applications made in the Google Ads API Center are no longer processed.
+
+With Test access, calls to a production account fail with `ACTION_NOT_PERMITTED` (API v24 and earlier, including the v23 that this CLI uses) or `CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION` (v25 and later). `customers` still succeeds with Test access, so use `customer <id>` to check your access.
+
+Known issues (October 2026, see [Google's developer token page](https://developers.google.com/google-ads/api/docs/api-policy/developer-token)):
+
+- Projects on the free trial, or with a suspended or disabled billing account, get their applications rejected.
+- Some projects upgraded after September 9, 2026 still get `AUTHORIZATION_ERROR`. Google's workaround is to apply for Explorer access with a new Cloud project.
+- Several users report that Explorer applications for new projects are rejected within seconds ([googleads/google-ads-mcp#133](https://github.com/googleads/google-ads-mcp/issues/133)).
+
+### 3. Sign in
+
 ```bash
-google-ads-open-cli auth login \
-  --developer-token=xxx \
-  --client-id=xxx \
-  --client-secret=xxx
+google-ads-open-cli auth login --client-id=xxx --client-secret=xxx
 ```
 
-**How to get the values:**
+This opens your browser for Google authorization and waits up to 120 seconds. Sign in with a Google account that has access to the Google Ads data you want to use. After you approve, credentials are saved to `~/.config/google-ads-open-cli/credentials.json`, and all later commands use them.
 
-1. **developer_token**: Sign in to your Google Ads **manager account** and open the [API Center](https://ads.google.com/aw/apicenter). Copy your developer token. If you don't have one, apply for access on that page. The default Explorer Access level is sufficient for read-only use.
-2. **client_id & client_secret**: Go to [Google Cloud Console > Credentials](https://console.cloud.google.com/apis/credentials), click **Create Credentials > OAuth client ID**, select **Desktop app**, and create it. Copy the client ID and client secret. Make sure the [Google Ads API](https://console.cloud.google.com/apis/library/googleads.googleapis.com) is enabled in your project.
-3. **login_customer_id** (optional): Required when accessing accounts via a Manager (MCC) account. Add `"login_customer_id": "1234567890"` to your credentials file (10 digits, no dashes).
+Options:
 
-This opens your browser for Google authorization. Make sure you sign in with a Google account that has access to the Google Ads data you want to use. After you approve, credentials are saved to `~/.config/google-ads-open-cli/credentials.json` and all subsequent commands work automatically. Tokens are refreshed as needed.
+- `--login-customer-id <id>`: the manager (MCC) account ID, when you access client accounts through a manager account. Dashes are stripped.
+- `--no-browser`: print the authorization URL instead of opening a browser.
+- `--port <port>`: the port of the local callback server (default: a random free port).
+- `--developer-token <token>`: optional. The API ignores it, but the CLI still sends it if you set one.
 
-> **Note:** Google Ads API does not support service accounts. You must use OAuth2 user credentials.
+Then check your access with a real account:
+
+```bash
+google-ads-open-cli customer 1234567890
+```
+
+The CLI refreshes the access token automatically. While the OAuth app is in **Testing** status, Google [expires the refresh token after 7 days](https://developers.google.com/identity/protocols/oauth2#expiration). After that, commands fail with `Token refresh failed`, and you must run `auth login` again. To remove this limit, set the app's publishing status to **In production** in Google Auth Platform. Google can require app verification for that.
+
+### Remote machines (SSH)
+
+The callback server listens on `127.0.0.1` of the machine that runs the CLI, so the browser must reach that address. On a remote machine, choose a fixed port and forward it over SSH:
+
+```bash
+# On your local machine
+ssh -L 8085:127.0.0.1:8085 user@remote-host
+
+# In that SSH session
+google-ads-open-cli auth login --client-id=xxx --client-secret=xxx --port 8085 --no-browser
+```
+
+Open the printed URL in your local browser. Google redirects to `http://127.0.0.1:8085`, and SSH forwards the request to the remote CLI. You can also run `auth login` locally and copy `credentials.json` to the remote machine.
+
+### Service accounts
+
+The Google Ads API supports service accounts, but this CLI currently supports only OAuth user credentials.
 
 ### Alternative: Environment variables
 
-For CI/CD or automation, you can set credentials via environment variables:
+For CI/CD or automation, set a refresh token and the OAuth client. The CLI gets a new access token on each run:
 
 ```bash
-export GOOGLE_ADS_ACCESS_TOKEN="your_oauth2_access_token"
-export GOOGLE_ADS_DEVELOPER_TOKEN="your_developer_token"
-export GOOGLE_ADS_LOGIN_CUSTOMER_ID="1234567890"  # optional, for MCC accounts
+export GOOGLE_ADS_REFRESH_TOKEN="your_refresh_token"   # from credentials.json after auth login
+export GOOGLE_ADS_CLIENT_ID="your_client_id"
+export GOOGLE_ADS_CLIENT_SECRET="your_client_secret"
+export GOOGLE_ADS_LOGIN_CUSTOMER_ID="1234567890"       # optional, for MCC accounts
 ```
+
+The 7-day limit of Testing status also applies to this refresh token.
+
+You can also set only `GOOGLE_ADS_ACCESS_TOKEN`. An access token expires after about 1 hour, and the CLI cannot refresh it. `GOOGLE_ADS_DEVELOPER_TOKEN` is optional.
+
+The CLI reads credentials in this order: the `--credentials` flag, the refresh token env vars, `GOOGLE_ADS_ACCESS_TOKEN`, then `~/.config/google-ads-open-cli/credentials.json`.
 
 ## Entity hierarchy
 

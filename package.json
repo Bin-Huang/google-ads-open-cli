@@ -13,7 +13,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "test": "pnpm build && node --test test/*.test.mjs"
   },
   "author": "Benn Huang <tohuangbin@gmail.com>",
   "license": "Apache-2.0",

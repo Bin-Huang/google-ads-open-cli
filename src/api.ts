@@ -1,4 +1,5 @@
 import type { Credentials } from "./auth.js";
+import { normalizeCustomerId } from "./utils.js";
 
 const BASE_URL = "https://googleads.googleapis.com/v23";
 
@@ -17,14 +18,24 @@ interface QueryOptions {
 function buildHeaders(creds: Credentials): Record<string, string> {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${creds.access_token}`,
-    "developer-token": creds.developer_token,
     "Content-Type": "application/json",
   };
+  // The API ignores developer tokens since 2026-09-09. Send one only if the user still has it.
+  if (creds.developer_token) {
+    headers["developer-token"] = creds.developer_token;
+  }
   if (creds.login_customer_id) {
-    headers["login-customer-id"] = creds.login_customer_id;
+    headers["login-customer-id"] = normalizeCustomerId(creds.login_customer_id);
   }
   return headers;
 }
+
+// Since 2026-09-09 the access level belongs to the Google Cloud project of the OAuth client.
+// New projects get Test access, which cannot read production accounts.
+const TEST_ACCESS_HINT =
+  "Hint: the Google Cloud project of your OAuth client probably has Test access, which only works with test accounts. " +
+  "Apply for Explorer access on the Google Ads API Overview page of that project: " +
+  "https://console.cloud.google.com/google/ads-apis/overview";
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -38,7 +49,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
  * The body comes from the network, so every level is checked before use.
  * Malformed details are skipped and the top-level message is kept.
  */
-function formatApiError(data: unknown, status: number): string {
+export function formatApiError(data: unknown, status: number): string {
   const body = Array.isArray(data) ? data[0] : data;
   const errObj = isObject(body) && isObject(body.error) ? body.error : undefined;
   const summary = errObj?.message ? String(errObj.message) : `HTTP ${status}`;
@@ -53,7 +64,10 @@ function formatApiError(data: unknown, status: number): string {
       details.push(code ? `${code}: ${message}` : message);
     }
   }
-  return details.length ? `${summary} - ${details.join("; ")}` : summary;
+  const message = details.length ? `${summary} - ${details.join("; ")}` : summary;
+  return /ACTION_NOT_PERMITTED|CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION|only approved for use with test accounts/i.test(message)
+    ? `${message}\n${TEST_ACCESS_HINT}`
+    : message;
 }
 
 export async function callApi(opts: CallOptions): Promise<unknown> {

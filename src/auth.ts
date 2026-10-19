@@ -4,7 +4,8 @@ import { homedir } from "node:os";
 
 export interface Credentials {
   access_token: string;
-  developer_token: string;
+  // Optional: Google stopped checking developer tokens on 2026-09-09.
+  developer_token?: string;
   login_customer_id?: string;
   client_id?: string;
   client_secret?: string;
@@ -53,7 +54,15 @@ async function refreshAccessToken(creds: Credentials): Promise<{ access_token: s
   const data = await res.json() as Record<string, unknown>;
   if (!res.ok) {
     const msg = (data.error_description || data.error || `HTTP ${res.status}`) as string;
-    throw new Error(`Token refresh failed: ${msg}`);
+    // invalid_grant: the refresh token is expired or revoked. Other errors (e.g. invalid_client) point at the OAuth client.
+    const hint = data.error === "invalid_grant"
+      ? `The refresh token is expired or revoked. If the OAuth app is in Testing status, refresh tokens expire after 7 days. `
+      : `Check the OAuth client ID and client secret. `;
+    throw new Error(
+      `Token refresh failed: ${msg} - ${hint}` +
+      `Run "google-ads-open-cli auth login" to sign in again, ` +
+      `then update GOOGLE_ADS_REFRESH_TOKEN if you use it.`
+    );
   }
 
   return {
@@ -66,33 +75,70 @@ function canRefresh(creds: Credentials): boolean {
   return !!(creds.refresh_token && creds.client_id && creds.client_secret);
 }
 
+function readCredentialsFile(path: string): Credentials {
+  if (!existsSync(path)) {
+    throw new Error(
+      `Credentials file not found: ${path}. ` +
+      `Run "google-ads-open-cli --credentials ${path} auth login" to create it, or fix the path.`
+    );
+  }
+  try {
+    return JSON.parse(readFileSync(path, "utf-8"));
+  } catch (err) {
+    throw new Error(`Cannot read credentials file ${path}: ${(err as Error).message}`);
+  }
+}
+
+/** Read credentials from GOOGLE_ADS_* env vars. Returns undefined when none are set. */
+function credentialsFromEnv(): Credentials | undefined {
+  const env = process.env;
+  const base = {
+    developer_token: env.GOOGLE_ADS_DEVELOPER_TOKEN || undefined,
+    login_customer_id: env.GOOGLE_ADS_LOGIN_CUSTOMER_ID || undefined,
+  };
+
+  const refreshVars = ["GOOGLE_ADS_REFRESH_TOKEN", "GOOGLE_ADS_CLIENT_ID", "GOOGLE_ADS_CLIENT_SECRET"];
+  const missing = refreshVars.filter((name) => !env[name]);
+  if (missing.length === 0) {
+    return {
+      ...base,
+      access_token: "",
+      refresh_token: env.GOOGLE_ADS_REFRESH_TOKEN,
+      client_id: env.GOOGLE_ADS_CLIENT_ID,
+      client_secret: env.GOOGLE_ADS_CLIENT_SECRET,
+    };
+  }
+  if (missing.length < refreshVars.length) {
+    throw new Error(`Incomplete environment credentials. Also set: ${missing.join(", ")}`);
+  }
+
+  if (env.GOOGLE_ADS_ACCESS_TOKEN) {
+    return { ...base, access_token: env.GOOGLE_ADS_ACCESS_TOKEN };
+  }
+  return undefined;
+}
+
 export async function loadCredentials(path?: string): Promise<Credentials> {
   let creds: Credentials;
   let sourcePath: string | undefined;
 
   if (path) {
-    creds = JSON.parse(readFileSync(path, "utf-8"));
+    creds = readCredentialsFile(path);
     sourcePath = path;
   } else {
-    const accessToken = process.env.GOOGLE_ADS_ACCESS_TOKEN;
-    const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
-    if (accessToken && developerToken) {
-      return {
-        access_token: accessToken,
-        developer_token: developerToken,
-        login_customer_id: process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID,
-      };
-    }
-
-    if (existsSync(DEFAULT_PATH)) {
-      creds = JSON.parse(readFileSync(DEFAULT_PATH, "utf-8"));
+    const envCreds = credentialsFromEnv();
+    if (envCreds) {
+      creds = envCreds;
+    } else if (existsSync(DEFAULT_PATH)) {
+      creds = readCredentialsFile(DEFAULT_PATH);
       sourcePath = DEFAULT_PATH;
     } else {
       throw new Error(
-        `No credentials found. Provide one of:\n` +
+        `No credentials found. Run "google-ads-open-cli auth login" to sign in, or provide one of:\n` +
         `  1. --credentials <path> flag\n` +
-        `  2. GOOGLE_ADS_ACCESS_TOKEN and GOOGLE_ADS_DEVELOPER_TOKEN env vars\n` +
-        `  3. ${DEFAULT_PATH}`
+        `  2. GOOGLE_ADS_REFRESH_TOKEN, GOOGLE_ADS_CLIENT_ID and GOOGLE_ADS_CLIENT_SECRET env vars\n` +
+        `  3. GOOGLE_ADS_ACCESS_TOKEN env var (expires after about 1 hour)\n` +
+        `  4. ${DEFAULT_PATH}`
       );
     }
   }
@@ -106,7 +152,7 @@ export async function loadCredentials(path?: string): Promise<Credentials> {
     }
   }
 
-  if (!creds.access_token || !creds.developer_token) {
+  if (!creds.access_token) {
     throw new Error(
       `Credentials file is missing required fields. Run "google-ads-open-cli auth login" to set up.`
     );

@@ -4,7 +4,7 @@ import { exec } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { DEFAULT_PATH, saveCredentials } from "../auth.js";
 import type { Credentials } from "../auth.js";
-import { fatal } from "../utils.js";
+import { fatal, normalizeCustomerId } from "../utils.js";
 
 function openBrowser(url: string): void {
   const cmd =
@@ -22,9 +22,10 @@ export function registerAuthCommands(program: Command): void {
   auth
     .command("login")
     .description("Authorize with Google and save OAuth2 credentials")
-    .option("--developer-token <token>", "Google Ads developer token")
     .option("--client-id <id>", "OAuth2 client ID")
     .option("--client-secret <secret>", "OAuth2 client secret")
+    .option("--login-customer-id <id>", "Manager (MCC) account ID to access client accounts through")
+    .option("--developer-token <token>", "Google Ads developer token (optional; ignored by the API since 2026-09-09)")
     .option("--port <port>", "Local server port (0 = auto)", "0")
     .option("--no-browser", "Print auth URL instead of opening browser")
     .action(async (opts) => {
@@ -41,10 +42,12 @@ export function registerAuthCommands(program: Command): void {
         const developerToken = opts.developerToken || existing.developer_token;
         const clientId = opts.clientId || existing.client_id;
         const clientSecret = opts.clientSecret || existing.client_secret;
+        const loginCustomerId = opts.loginCustomerId
+          ? normalizeCustomerId(opts.loginCustomerId)
+          : existing.login_customer_id;
 
-        if (!developerToken || !clientId || !clientSecret) {
+        if (!clientId || !clientSecret) {
           const missing: string[] = [];
-          if (!developerToken) missing.push("--developer-token");
           if (!clientId) missing.push("--client-id");
           if (!clientSecret) missing.push("--client-secret");
           fatal(
@@ -61,6 +64,7 @@ export function registerAuthCommands(program: Command): void {
         const creds: Credentials = {
           ...existing,
           developer_token: developerToken,
+          login_customer_id: loginCustomerId,
           client_id: clientId,
           client_secret: clientSecret,
           access_token: tokens.access_token,
@@ -69,7 +73,11 @@ export function registerAuthCommands(program: Command): void {
         } as Credentials;
 
         saveCredentials(credsPath, creds);
-        process.stderr.write(`Credentials saved to ${credsPath}\n`);
+        process.stderr.write(
+          `Credentials saved to ${credsPath}\n` +
+          `Next: run "google-ads-open-cli customer <customer-id>" to check access. ` +
+          `New Google Cloud projects have Test access, which cannot read production accounts.\n`
+        );
       } catch (err) {
         fatal((err as Error).message);
       }

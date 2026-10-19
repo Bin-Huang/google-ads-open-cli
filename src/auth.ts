@@ -54,9 +54,12 @@ async function refreshAccessToken(creds: Credentials): Promise<{ access_token: s
   const data = await res.json() as Record<string, unknown>;
   if (!res.ok) {
     const msg = (data.error_description || data.error || `HTTP ${res.status}`) as string;
+    // invalid_grant: the refresh token is expired or revoked. Other errors (e.g. invalid_client) point at the OAuth client.
+    const hint = data.error === "invalid_grant"
+      ? `The refresh token is expired or revoked. If the OAuth app is in Testing status, refresh tokens expire after 7 days. `
+      : `Check the OAuth client ID and client secret. `;
     throw new Error(
-      `Token refresh failed: ${msg} - The refresh token may be expired or revoked. ` +
-      `If the OAuth app is in Testing status, refresh tokens expire after 7 days. ` +
+      `Token refresh failed: ${msg} - ${hint}` +
       `Run "google-ads-open-cli auth login" to sign in again, ` +
       `then update GOOGLE_ADS_REFRESH_TOKEN if you use it.`
     );

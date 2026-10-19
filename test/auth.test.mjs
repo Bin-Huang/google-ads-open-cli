@@ -94,6 +94,19 @@ test("refresh failure: error mentions 7-day expiry and auth login", async () => 
   });
 });
 
+test("refresh failure with a bad OAuth client: no 7-day hint", async () => {
+  process.env.GOOGLE_ADS_REFRESH_TOKEN = "rt";
+  process.env.GOOGLE_ADS_CLIENT_ID = "cid";
+  process.env.GOOGLE_ADS_CLIENT_SECRET = "cs";
+  mockFetch(401, { error: "invalid_client", error_description: "The OAuth client was not found." });
+
+  await assert.rejects(loadCredentials(), (err) => {
+    assert.match(err.message, /Check the OAuth client ID and client secret/);
+    assert.doesNotMatch(err.message, /7 days/);
+    return true;
+  });
+});
+
 test("API request without a developer token omits the header", async () => {
   mockFetch(200, {});
   await callApi({ creds: { access_token: "at" }, path: "customers:listAccessibleCustomers" });

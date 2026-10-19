@@ -119,7 +119,7 @@ The 7-day limit of Testing status also applies to this refresh token.
 
 You can also set only `GOOGLE_ADS_ACCESS_TOKEN`. An access token expires after about 1 hour, and the CLI cannot refresh it. `GOOGLE_ADS_DEVELOPER_TOKEN` is optional.
 
-The CLI reads credentials in this order: the `--credentials` flag, the refresh token env vars, `GOOGLE_ADS_ACCESS_TOKEN`, then `~/.config/google-ads-open-cli/credentials.json`. If you set only some of the three refresh token env vars, the CLI exits with an error that names the missing ones.
+The CLI reads credentials in this order: the `--credentials` flag, the refresh token env vars, `GOOGLE_ADS_ACCESS_TOKEN`, then `~/.config/google-ads-open-cli/credentials.json`. If you set only some of the three refresh token env vars, the CLI exits with an error that names the missing ones. The official Google Ads client libraries read the same variable names, so if you already set them for a library, the CLI uses them instead of `credentials.json`. `GOOGLE_ADS_LOGIN_CUSTOMER_ID` and `GOOGLE_ADS_DEVELOPER_TOKEN` apply only to env var credentials.
 
 ## Entity hierarchy
 

@@ -1,6 +1,6 @@
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -46,6 +46,12 @@ test("--credentials with a missing file: readable error", async () => {
   });
 });
 
+test("--credentials with a malformed file: error names the file", async () => {
+  const path = join(process.env.HOME, "bad.json");
+  writeFileSync(path, "{bad");
+  await assert.rejects(loadCredentials(path), new RegExp(`Cannot read credentials file ${path}: `));
+});
+
 test("GOOGLE_ADS_ACCESS_TOKEN works without a developer token", async () => {
   process.env.GOOGLE_ADS_ACCESS_TOKEN = "at";
   const creds = await loadCredentials();
@@ -81,7 +87,7 @@ test("refresh failure: error mentions 7-day expiry and auth login", async () => 
   mockFetch(400, { error: "invalid_grant", error_description: "Token has been expired or revoked." });
 
   await assert.rejects(loadCredentials(), (err) => {
-    assert.match(err.message, /Token refresh failed: Token has been expired or revoked/);
+    assert.match(err.message, /Token refresh failed: Token has been expired or revoked\. - /);
     assert.match(err.message, /7 days/);
     assert.match(err.message, /auth login/);
     return true;

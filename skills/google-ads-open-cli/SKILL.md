@@ -43,7 +43,7 @@ If the check fails, use the error table below. If the user must sign in, ask the
 google-ads-open-cli auth login --client-id=xxx --client-secret=xxx
 ```
 
-Do NOT run `auth login` yourself. It opens a browser and blocks for up to 120 seconds while it waits for the user to approve. With `--no-browser`, it prints the authorization URL instead of opening a browser. Other options: `--login-customer-id <id>` for access through a manager (MCC) account, and `--port <port>` with `ssh -L` on a remote machine (see the README).
+Do NOT run `auth login` yourself. It opens a browser and blocks for up to 120 seconds while it waits for the user to approve. With `--no-browser`, it prints the authorization URL instead of opening a browser. Other options: `--login-customer-id <id>` for access through a manager (MCC) account, and `--port <port>` with `ssh -L` on a remote machine (see [Remote machines](https://github.com/Bin-Huang/google-ads-open-cli#remote-machines-ssh) in the README).
 
 A developer token is NOT required. Google stopped checking developer tokens on September 9, 2026. The access level now belongs to the Google Cloud project that owns the OAuth client.
 
@@ -61,10 +61,11 @@ For CI/CD, set `GOOGLE_ADS_REFRESH_TOKEN`, `GOOGLE_ADS_CLIENT_ID` and `GOOGLE_AD
 | Error contains | Cause | What to tell the user |
 |---|---|---|
 | `No credentials found` or `Credentials file not found` | The CLI has no credentials. | Run `google-ads-open-cli auth login --client-id=xxx --client-secret=xxx` in their own terminal. |
-| `ACTION_NOT_PERMITTED`, `CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION`, or `only approved for use with test accounts` | The Cloud project has Test access, so it can read only test accounts. | Apply for Explorer access on the Google Ads API Overview page of the Cloud project. Google has known issues: projects on the free trial or without active billing are rejected, and some projects upgraded after September 9, 2026 still get `AUTHORIZATION_ERROR` (workaround: apply with a new Cloud project). |
-| `Token refresh failed` (often `invalid_grant`) | The refresh token expired or was revoked. In Testing status, refresh tokens expire after 7 days. | Run `auth login` again. To remove the 7-day limit, publish the OAuth app (In production) in Google Auth Platform. |
-| `Google Ads API has not been used in project` or `SERVICE_DISABLED` | The Google Ads API is not enabled in the Cloud project. | Enable the Google Ads API at the link in the error, wait a few minutes, then retry. |
-| `USER_PERMISSION_DENIED` | The signed-in Google account cannot access this customer, or a manager account is needed. | Check the customer ID. For access through a manager account, run `auth login --login-customer-id <manager-id>`. |
+| `ACTION_NOT_PERMITTED`, `CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION`, or `only approved for use with test accounts` | The Cloud project has Test access, so it can read only test accounts. | Apply for Explorer access on the Google Ads API Overview page of the Cloud project. Google has known issues: some applications are rejected when the project is on the free trial or its billing account is suspended or disabled, and some projects upgraded after September 9, 2026 still get `AUTHORIZATION_ERROR` (workaround: apply with a new Cloud project). |
+| `Token refresh failed` (often `invalid_grant`) | The refresh token expired or was revoked. In Testing status, refresh tokens expire after 7 days. | Run `auth login` again in their own terminal. In CI, also update `GOOGLE_ADS_REFRESH_TOKEN`. To remove the 7-day limit, publish the OAuth app (In production) in Google Auth Platform. |
+| `Google Ads API has not been used in project` | The Google Ads API is not enabled in the Cloud project. | Enable the Google Ads API at the link in the error, wait a few minutes, then retry. |
+| `USER_PERMISSION_DENIED` | The signed-in Google account cannot access this customer, or a manager account is needed. | Check the customer ID. For access through a manager account, run `auth login --login-customer-id <manager-id>`, or set `GOOGLE_ADS_LOGIN_CUSTOMER_ID`. |
+| `Incomplete environment credentials` | Only some of the refresh token env vars are set. | Set all of `GOOGLE_ADS_REFRESH_TOKEN`, `GOOGLE_ADS_CLIENT_ID` and `GOOGLE_ADS_CLIENT_SECRET`. |
 
 ## Entity hierarchy
 

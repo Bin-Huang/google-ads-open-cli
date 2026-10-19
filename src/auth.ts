@@ -55,9 +55,10 @@ async function refreshAccessToken(creds: Credentials): Promise<{ access_token: s
   if (!res.ok) {
     const msg = (data.error_description || data.error || `HTTP ${res.status}`) as string;
     throw new Error(
-      `Token refresh failed: ${msg}. The refresh token may be expired or revoked. ` +
+      `Token refresh failed: ${msg} - The refresh token may be expired or revoked. ` +
       `If the OAuth app is in Testing status, refresh tokens expire after 7 days. ` +
-      `Run "google-ads-open-cli auth login" to sign in again.`
+      `Run "google-ads-open-cli auth login" to sign in again, ` +
+      `then update GOOGLE_ADS_REFRESH_TOKEN if you use it.`
     );
   }
 
@@ -78,7 +79,11 @@ function readCredentialsFile(path: string): Credentials {
       `Run "google-ads-open-cli --credentials ${path} auth login" to create it, or fix the path.`
     );
   }
-  return JSON.parse(readFileSync(path, "utf-8"));
+  try {
+    return JSON.parse(readFileSync(path, "utf-8"));
+  } catch (err) {
+    throw new Error(`Cannot read credentials file ${path}: ${(err as Error).message}`);
+  }
 }
 
 /** Read credentials from GOOGLE_ADS_* env vars. Returns undefined when none are set. */

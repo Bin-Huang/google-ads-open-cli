@@ -59,7 +59,7 @@ With Test access, calls to a production account fail with `ACTION_NOT_PERMITTED`
 
 Known issues (October 2026, see [Google's developer token page](https://developers.google.com/google-ads/api/docs/api-policy/developer-token)):
 
-- Projects on the free trial, or with a suspended or disabled billing account, get their applications rejected.
+- Some applications are rejected even after brand verification. Google says the cause can be a project on the free trial, or a project with a suspended or disabled billing account.
 - Some projects upgraded after September 9, 2026 still get `AUTHORIZATION_ERROR`. Google's workaround is to apply for Explorer access with a new Cloud project.
 - Several users report that Explorer applications for new projects are rejected within seconds ([googleads/google-ads-mcp#133](https://github.com/googleads/google-ads-mcp/issues/133)).
 
@@ -84,7 +84,7 @@ Then check your access with a real account:
 google-ads-open-cli customer 1234567890
 ```
 
-The CLI refreshes the access token automatically. While the OAuth app is in **Testing** status, Google [expires the refresh token after 7 days](https://developers.google.com/identity/protocols/oauth2#expiration). After that, commands fail with `Token refresh failed`, and you must run `auth login` again. To remove this limit, set the app's publishing status to **In production** in Google Auth Platform. Google can require app verification for that.
+The CLI refreshes the access token automatically. While the OAuth app has the **External** audience and is in **Testing** status, Google [expires the refresh token after 7 days](https://developers.google.com/identity/protocols/oauth2#expiration). After that, commands fail with `Token refresh failed`, and you must run `auth login` again. To remove this limit, set the app's publishing status to **In production** in Google Auth Platform. Google can require app verification for that.
 
 ### Remote machines (SSH)
 
@@ -119,7 +119,7 @@ The 7-day limit of Testing status also applies to this refresh token.
 
 You can also set only `GOOGLE_ADS_ACCESS_TOKEN`. An access token expires after about 1 hour, and the CLI cannot refresh it. `GOOGLE_ADS_DEVELOPER_TOKEN` is optional.
 
-The CLI reads credentials in this order: the `--credentials` flag, the refresh token env vars, `GOOGLE_ADS_ACCESS_TOKEN`, then `~/.config/google-ads-open-cli/credentials.json`.
+The CLI reads credentials in this order: the `--credentials` flag, the refresh token env vars, `GOOGLE_ADS_ACCESS_TOKEN`, then `~/.config/google-ads-open-cli/credentials.json`. If you set only some of the three refresh token env vars, the CLI exits with an error that names the missing ones.
 
 ## Entity hierarchy
 
@@ -427,7 +427,7 @@ The date range uses this machine's local date, but Google Ads reads it in the ac
 All errors are JSON to stderr:
 
 ```json
-{"error": "No credentials found. Provide one of: ..."}
+{"error": "No credentials found. Run \"google-ads-open-cli auth login\" to sign in, or provide one of: ..."}
 ```
 
 API errors include the Google Ads error code and detail message when the API returns them:
